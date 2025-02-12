@@ -1,0 +1,9 @@
+{
+    "text": "Hello!",
+    "size": 800,
+    "colors": [
+        "0xff0000",
+        "0x00cc00",
+        "0xbbbbbb"
+    ]
+}

@@ -4,8 +4,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 @main def main(): Unit =
-  val config =
-    Config(500, "Hello", List("0xff0000", "0x00cc00", "0xbbbbbb"), "images")
+  val config = read_config("config.json")
   File(config.path).mkdirs()
 
   val letter_configs =
@@ -24,6 +23,15 @@ case class Config(
     colors: List[String],
     path: String
 )
+
+def read_config(path: String) =
+  val json = ujson.read(os.read(os.pwd / path))
+  Config(
+    json("size").num.toInt,
+    json("text").str,
+    json("colors").arr.map(_.str).toList,
+    "images"
+  )
 
 case class LetterConfig(
     letter: Char,
