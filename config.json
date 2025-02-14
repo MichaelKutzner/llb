@@ -7,5 +7,6 @@
         "0xbbbbbb"
     ],
     "font": "SansSerif",
-    "path": "images"
+    "path": "images",
+    "adjust_y": 16
 }

@@ -26,6 +26,7 @@ case class Config(
     size: Int,
     letters: String,
     font: Font,
+    adjust_y: Int,
     colors: List[Color],
     path: String
 )
@@ -43,6 +44,7 @@ def read_config(path: String) =
       Font.PLAIN,
       (size * 1.15).toInt
     ),
+    Try(json("adjust_y").num.toInt).getOrElse(0),
     Try(json("colors").arr.map(_.str).toList)
       .getOrElse(List("magenta", "0xff00ff", "fuchsia"))
       .map(_.toColor),
@@ -76,7 +78,7 @@ case class LetterConfig(
     val box = metrics.getStringBounds(text, graphics)
     val width = ((canvas.getWidth() - box.getWidth()) / 2).toFloat
     val height = ((canvas.getHeight() + metrics.getAscent() - metrics
-      .getDescent()) / 2).toFloat
+      .getDescent()) / 2).toFloat + config.adjust_y
     graphics.drawString(text, width, height)
 
     // Finish image
