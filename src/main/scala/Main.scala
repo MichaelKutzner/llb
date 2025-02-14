@@ -38,9 +38,15 @@ def read_config(path: String) =
   Config(
     size,
     Try(json("text").str).getOrElse("LLB"),
-    Font(Try(json("font").str).getOrElse("Monospaced"), Font.PLAIN, (size * 1.15).toInt),
-    Try(json("colors").arr.map(_.str).toList).getOrElse(List("magenta", "0xff00ff", "fuchsia")).map(_.toColor),
-    Try(json("path").str).getOrElse("images"),
+    Font(
+      Try(json("font").str).getOrElse("Monospaced"),
+      Font.PLAIN,
+      (size * 1.15).toInt
+    ),
+    Try(json("colors").arr.map(_.str).toList)
+      .getOrElse(List("magenta", "0xff00ff", "fuchsia"))
+      .map(_.toColor),
+    Try(json("path").str).getOrElse("images")
   )
 
 case class LetterConfig(
@@ -53,7 +59,8 @@ case class LetterConfig(
     // https://coderanch.com/t/753449/java/Font-metrics-centering-character-box
 
     val text = letter.toString()
-    val canvas = new BufferedImage(config.size, config.size, BufferedImage.TYPE_INT_RGB)
+    val canvas =
+      new BufferedImage(config.size, config.size, BufferedImage.TYPE_INT_RGB)
     val graphics = canvas.createGraphics()
 
     // Create white canvas with black border
