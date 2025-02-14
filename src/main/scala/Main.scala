@@ -3,6 +3,8 @@ import java.awt.image.{BufferedImage, RenderedImage}
 import java.io.File
 import javax.imageio.ImageIO
 
+import scala.util.{Try, Success, Failure}
+
 @main def main(): Unit =
   val config = read_config("config.json")
   File(config.path).mkdirs()
@@ -27,15 +29,15 @@ case class Config(
 def read_config(path: String) =
   val json = ujson.read(os.read(os.pwd / path))
   Config(
-    json("size").num.toInt,
-    json("text").str,
-    json("colors").arr.map(_.str).toList,
-    "images"
+    Try(json("size").num.toInt).getOrElse(400),
+    Try(json("text").str).getOrElse("LLB"),
+    Try(json("colors").arr.map(_.str).toList).getOrElse(List("magenta", "0xff00ff", "fuchsia")),
+    Try(json("path").str).getOrElse("images")
   )
 
 case class LetterConfig(
     letter: Char,
-    color: String,
+    color: Color,
     index: Int
 ) {
   def make_image(size: Int) =
@@ -54,7 +56,7 @@ case class LetterConfig(
 
     // Write letter
     val font = Font("Arial", Font.PLAIN, (size * 1.15).toInt)
-    graphics.setColor(Color.decode(color))
+    graphics.setColor(color)
     graphics.setFont(font)
     val metrics = graphics.getFontMetrics()
     val box = metrics.getStringBounds(text, graphics)
@@ -74,7 +76,8 @@ object LetterConfig {
   def New(tuple: Any) =
     tuple match
       case ((letter: Char, color: String), index: Int) =>
-        LetterConfig(letter, color, index)
+        val c = Try(Color.decode(color)).getOrElse(Color.getColor(color, Color(0x778899)))
+        LetterConfig(letter, c, index)
 }
 
 def write_image(image: RenderedImage, path: String) =
