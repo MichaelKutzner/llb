@@ -26,7 +26,7 @@ case class Config(
     size: Int,
     letters: String,
     font: Font,
-    colors: List[String],
+    colors: List[Color],
     path: String
 )
 
@@ -39,7 +39,7 @@ def read_config(path: String) =
     size,
     Try(json("text").str).getOrElse("LLB"),
     Font(Try(json("font").str).getOrElse("Monospaced"), Font.PLAIN, (size * 1.15).toInt),
-    Try(json("colors").arr.map(_.str).toList).getOrElse(List("magenta", "0xff00ff", "fuchsia")),
+    Try(json("colors").arr.map(_.str).toList).getOrElse(List("magenta", "0xff00ff", "fuchsia")).map(_.toColor),
     Try(json("path").str).getOrElse("images"),
   )
 
@@ -79,12 +79,15 @@ case class LetterConfig(
 
 }
 
+extension (color: String)
+  def toColor =
+    Try(Color.decode(color)).getOrElse(Color.getColor(color, Color(0x778899)))
+
 object LetterConfig {
   def New(tuple: Any) =
     tuple match
-      case ((letter: Char, color: String), index: Int) =>
-        val c = Try(Color.decode(color)).getOrElse(Color.getColor(color, Color(0x778899)))
-        LetterConfig(letter, c, index)
+      case ((letter: Char, color: Color), index: Int) =>
+        LetterConfig(letter, color, index)
 }
 
 def write_image(image: RenderedImage, path: String) =
