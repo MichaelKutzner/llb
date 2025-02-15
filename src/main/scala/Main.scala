@@ -12,11 +12,10 @@ import scala.util.{Try, Success, Failure}
   val letter_configs =
     config.letters
       .zip(Iterator.continually(config.colors).flatten)
-      .zipWithIndex
-      .map(LetterConfig.New(_))
-  for (letter_config <- letter_configs)
-    val image = letter_config.make_image(config)
-    val image_path = s"${config.path}/${letter_config.index}.png"
+      .map(Letter.apply)
+  for ((letter: Letter, index: Int) <- letter_configs.zipWithIndex)
+    val image = letter.make_image(config)
+    val image_path = s"${config.path}/${index}.png"
     write_image(image, image_path)
 
   // Available fonts
@@ -51,10 +50,9 @@ def read_config(path: String) =
     Try(json("path").str).getOrElse("images")
   )
 
-case class LetterConfig(
+case class Letter(
     letter: Char,
-    color: Color,
-    index: Int
+    color: Color
 ) {
   def make_image(config: Config) =
     // See also: https://otfried.org/scala/drawing.html
@@ -91,13 +89,6 @@ case class LetterConfig(
 extension (color: String)
   def toColor =
     Try(Color.decode(color)).getOrElse(Color.getColor(color, Color(0x778899)))
-
-object LetterConfig {
-  def New(tuple: Any) =
-    tuple match
-      case ((letter: Char, color: Color), index: Int) =>
-        LetterConfig(letter, color, index)
-}
 
 def write_image(image: RenderedImage, path: String) =
   ImageIO.write(image, "png", new File(path))
